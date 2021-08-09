@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "arv_avl.h"
 
 struct No
 {
-	int info;
+	int hash;
+	char palavra[128];
 	int altura;
 	int qtd;
 	struct No *esq;
@@ -106,7 +108,7 @@ int fatorBalanceamento_no(struct No *no)
 	return labs(altura_no(no->esq) - altura_no(no->dir));
 }
 
-int insere_arvAVL(ArvAVL *a, int valor)
+int insere_arvAVL(ArvAVL *a, int hash, char pala[])
 {
 	int res;
 	if (*a == NULL)
@@ -116,7 +118,9 @@ int insere_arvAVL(ArvAVL *a, int valor)
 		if (add == NULL)
 			return 0;
 
-		add->info = valor;
+		add->hash = hash;
+		// add->palavra = pala;
+		strcpy(add->palavra, pala);
 		add->altura = 0;
 		add->qtd = 1;
 		add->esq = NULL;
@@ -125,13 +129,64 @@ int insere_arvAVL(ArvAVL *a, int valor)
 		return 1;
 	}
 	struct No *atual = *a;
-	if (valor < atual->info)
+
+	// inicio test
+	// // if (valor < atual->info)
+	// if (strcmp(pala, atual->palavra) < 0)
+	// {
+	// 	if ((res = insere_arvAVL(&(atual->esq), pala)) == 1)
+	// 	{
+	// 		if (fatorBalanceamento_no(atual) >= 2)
+	// 		{
+	// 			// if (valor < (*a)->esq->info)
+	// 			if (strcmp(pala, (*a)->esq->palavra))
+	// 			{
+	// 				rotacaoLL(a);
+	// 			}
+	// 			else
+	// 			{
+	// 				rotacaoLR(a);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
+	// 	// if (valor > atual->info)
+	// 	if (strcmp(pala, (*a)->esq->palavra) > 0)
+	// 	{
+	// 		if ((res = insere_arvAVL(&(atual->dir), pala)) == 1)
+	// 		{
+	// 			if (fatorBalanceamento_no(atual) >= 2)
+	// 			{
+	// 				// if ((*a)->dir->info < valor)
+	// 				if (strcmp((*a)->dir->palavra, pala) < 0)
+	// 				{
+	// 					rotacaoRR(a);
+	// 				}
+	// 				else
+	// 				{
+	// 					rotacaoRL(a);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		atual->qtd++;
+	// 		return 0;
+	// 	}
+	// }
+	//fim test
+
+	//inicio test 2
+	if (hash < atual->hash)
 	{
-		if ((res = insere_arvAVL(&(atual->esq), valor)) == 1)
+		if ((res = insere_arvAVL(&(atual->esq), hash, pala)) == 1)
 		{
 			if (fatorBalanceamento_no(atual) >= 2)
 			{
-				if (valor < (*a)->esq->info)
+				if (hash < (*a)->esq->hash)
 				{
 					rotacaoLL(a);
 				}
@@ -144,13 +199,13 @@ int insere_arvAVL(ArvAVL *a, int valor)
 	}
 	else
 	{
-		if (valor > atual->info)
+		if (hash > atual->hash)
 		{
-			if ((res = insere_arvAVL(&(atual->dir), valor)) == 1)
+			if ((res = insere_arvAVL(&(atual->dir), hash, pala)) == 1)
 			{
 				if (fatorBalanceamento_no(atual) >= 2)
 				{
-					if ((*a)->dir->info < valor)
+					if ((*a)->dir->hash < hash)
 					{
 						rotacaoRR(a);
 					}
@@ -167,10 +222,219 @@ int insere_arvAVL(ArvAVL *a, int valor)
 			return 0;
 		}
 	}
+	//fim test 2
+
+	// codigo que funciona hasuhsa
+	// if (valor < atual->info)
+	// {
+	// 	if ((res = insere_arvAVL(&(atual->esq), valor)) == 1)
+	// 	{
+	// 		if (fatorBalanceamento_no(atual) >= 2)
+	// 		{
+	// 			if (valor < (*a)->esq->info)
+	// 			{
+	// 				rotacaoLL(a);
+	// 			}
+	// 			else
+	// 			{
+	// 				rotacaoLR(a);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
+	// 	if (valor > atual->info)
+	// 	{
+	// 		if ((res = insere_arvAVL(&(atual->dir), valor)) == 1)
+	// 		{
+	// 			if (fatorBalanceamento_no(atual) >= 2)
+	// 			{
+	// 				if ((*a)->dir->info < valor)
+	// 				{
+	// 					rotacaoRR(a);
+	// 				}
+	// 				else
+	// 				{
+	// 					rotacaoRL(a);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		atual->qtd++;
+	// 		return 0;
+	// 	}
+	// }
 	atual->altura = maior(altura_no(atual->esq), altura_no(atual->dir)) + 1;
 
 	return res;
 }
+
+// int insere_arvAVL(ArvAVL *a, char pala[])
+// {
+// 	int res;
+// 	if (*a == NULL)
+// 	{
+// 		struct No *add;
+// 		add = (struct No *)malloc(sizeof(struct No));
+// 		if (add == NULL)
+// 			return 0;
+
+// 		// add->hash = hash;
+// 		// add->palavra = pala;
+// 		strcpy(add->palavra, pala);
+// 		add->altura = 0;
+// 		add->qtd = 1;
+// 		add->esq = NULL;
+// 		add->dir = NULL;
+// 		*a = add;
+// 		return 1;
+// 	}
+// 	struct No *atual = *a;
+
+// 	// inicio test
+// 	// // if (valor < atual->info)
+// 	if (strcmp(pala, atual->palavra) < 0)
+// 	{
+// 		if ((res = insere_arvAVL(&(atual->esq), pala)) == 1)
+// 		{
+// 			if (fatorBalanceamento_no(atual) >= 2)
+// 			{
+// 				// if (valor < (*a)->esq->info)
+// 				if (strcmp(pala, (*a)->esq->palavra))
+// 				{
+// 					rotacaoLL(a);
+// 				}
+// 				else
+// 				{
+// 					rotacaoLR(a);
+// 				}
+// 			}
+// 		}
+// 	}
+// 	else
+// 	{
+// 		// if (valor > atual->info)
+// 		if (strcmp(pala, (*a)->esq->palavra) > 0)
+// 		{
+// 			if ((res = insere_arvAVL(&(atual->dir), pala)) == 1)
+// 			{
+// 				if (fatorBalanceamento_no(atual) >= 2)
+// 				{
+// 					// if ((*a)->dir->info < valor)
+// 					if (strcmp((*a)->dir->palavra, pala) < 0)
+// 					{
+// 						rotacaoRR(a);
+// 					}
+// 					else
+// 					{
+// 						rotacaoRL(a);
+// 					}
+// 				}
+// 			}
+// 		}
+// 		else
+// 		{
+// 			atual->qtd++;
+// 			return 0;
+// 		}
+// 	}
+// 	//fim test
+
+// 	//inicio test 2
+// 	// if (hash < atual->hash)
+// 	// {
+// 	// 	if ((res = insere_arvAVL(&(atual->esq), hash, pala)) == 1)
+// 	// 	{
+// 	// 		if (fatorBalanceamento_no(atual) >= 2)
+// 	// 		{
+// 	// 			if (hash < (*a)->esq->hash)
+// 	// 			{
+// 	// 				rotacaoLL(a);
+// 	// 			}
+// 	// 			else
+// 	// 			{
+// 	// 				rotacaoLR(a);
+// 	// 			}
+// 	// 		}
+// 	// 	}
+// 	// }
+// 	// else
+// 	// {
+// 	// 	if (hash > atual->hash)
+// 	// 	{
+// 	// 		if ((res = insere_arvAVL(&(atual->dir), hash, pala)) == 1)
+// 	// 		{
+// 	// 			if (fatorBalanceamento_no(atual) >= 2)
+// 	// 			{
+// 	// 				if ((*a)->dir->hash < hash)
+// 	// 				{
+// 	// 					rotacaoRR(a);
+// 	// 				}
+// 	// 				else
+// 	// 				{
+// 	// 					rotacaoRL(a);
+// 	// 				}
+// 	// 			}
+// 	// 		}
+// 	// 	}
+// 	// 	else
+// 	// 	{
+// 	// 		atual->qtd++;
+// 	// 		return 0;
+// 	// 	}
+// 	// }
+// 	//fim test 2
+
+// 	// codigo que funciona hasuhsa
+// 	// if (valor < atual->info)
+// 	// {
+// 	// 	if ((res = insere_arvAVL(&(atual->esq), valor)) == 1)
+// 	// 	{
+// 	// 		if (fatorBalanceamento_no(atual) >= 2)
+// 	// 		{
+// 	// 			if (valor < (*a)->esq->info)
+// 	// 			{
+// 	// 				rotacaoLL(a);
+// 	// 			}
+// 	// 			else
+// 	// 			{
+// 	// 				rotacaoLR(a);
+// 	// 			}
+// 	// 		}
+// 	// 	}
+// 	// }
+// 	// else
+// 	// {
+// 	// 	if (valor > atual->info)
+// 	// 	{
+// 	// 		if ((res = insere_arvAVL(&(atual->dir), valor)) == 1)
+// 	// 		{
+// 	// 			if (fatorBalanceamento_no(atual) >= 2)
+// 	// 			{
+// 	// 				if ((*a)->dir->info < valor)
+// 	// 				{
+// 	// 					rotacaoRR(a);
+// 	// 				}
+// 	// 				else
+// 	// 				{
+// 	// 					rotacaoRL(a);
+// 	// 				}
+// 	// 			}
+// 	// 		}
+// 	// 	}
+// 	// 	else
+// 	// 	{
+// 	// 		atual->qtd++;
+// 	// 		return 0;
+// 	// 	}
+// 	// }
+// 	atual->altura = maior(altura_no(atual->esq), altura_no(atual->dir)) + 1;
+
+// 	return res;
+// }
 
 void emOrdem_print(ArvAVL *a)
 {
@@ -179,7 +443,7 @@ void emOrdem_print(ArvAVL *a)
 	if (*a != NULL)
 	{
 		emOrdem_print(&((*a)->esq));
-		printf("dado %d qtd %d\n", (*a)->info, (*a)->qtd);
+		printf("dado %s qtd %d\n", (*a)->palavra, (*a)->qtd);
 		emOrdem_print(&((*a)->dir));
 	}
 }
